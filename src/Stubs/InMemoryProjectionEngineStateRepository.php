@@ -18,13 +18,13 @@ class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRe
         $this->consumerId = $consumerId;
     }
 
-    public function storeOffset(string $offset): void
+    public function storeOffset(int $offset): void
     {
         $this->consumers[$this->consumerId] = $offset;
         $this->consumerLocks[$this->consumerId] = false;
     }
 
-    public function getOffset(): ?string
+    public function getOffset(): ?int
     {
         return $this->consumers[$this->consumerId] ?? null;
     }
@@ -46,7 +46,7 @@ class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRe
         $this->consumerLocks[$this->consumerId] = false;
     }
 
-    public function isLocked()
+    public function isLocked(): bool
     {
         return $this->consumerLocks[$this->consumerId] ?? false;
     }

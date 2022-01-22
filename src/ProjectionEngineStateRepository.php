@@ -6,7 +6,7 @@ interface ProjectionEngineStateRepository
 {
     public function __construct(string $consumerId);
 
-    public function storeOffset(string $offset): void;
+    public function storeOffset(int $offset): void;
 
-    public function getOffset(): ?string;
+    public function getOffset(): ?int;
 }
