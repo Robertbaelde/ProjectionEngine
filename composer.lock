@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4288817e756e7513ed007b936efef3ae",
+    "content-hash": "a60aa8015525e8367cf84fff74c02eea",
     "packages": [
         {
             "name": "eventsauce/clock",
