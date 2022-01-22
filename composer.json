@@ -1,0 +1,25 @@
+{
+    "name": "robertbaelde/projection-engine",
+    "description": "Projection engine supporting message consumers that track the point in the event stream",
+    "type": "library",
+    "require": {
+        "php": "^8.1",
+        "eventsauce/eventsauce": "^1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.4",
+        "friendsofphp/php-cs-fixer": "^3.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Robertbaelde\\ProjectionEngine\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Robertbaelde",
+            "email": "robert_baelde@hotmail.com"
+        }
+    ]
+}
