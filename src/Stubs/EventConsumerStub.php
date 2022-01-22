@@ -7,7 +7,6 @@ use EventSauce\EventSourcing\MessageConsumer;
 
 class EventConsumerStub implements MessageConsumer
 {
-
     private array $handledMessages = [];
 
     public function __construct()

@@ -12,8 +12,7 @@ class ProjectionEngine
         protected ProjectionEngineLockRepository $lock,
         protected MessageDispatcher $dispatcher,
         protected int $pageSize = 100
-    )
-    {
+    ) {
     }
 
     /**
@@ -37,5 +36,4 @@ class ProjectionEngine
 
         $this->lock->releaseLock();
     }
-
 }

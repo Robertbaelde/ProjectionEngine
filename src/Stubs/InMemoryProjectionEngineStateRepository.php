@@ -8,7 +8,6 @@ use Robertbaelde\ProjectionEngine\ProjectionEngineStateRepository;
 
 class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRepository, ProjectionEngineLockRepository
 {
-
     private string $consumerId;
     private array $consumers = [];
     private array $consumerLocks = [];
@@ -56,6 +55,4 @@ class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRe
     {
         return $this->lockWasObtained;
     }
-
-
 }

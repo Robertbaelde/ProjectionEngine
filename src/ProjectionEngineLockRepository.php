@@ -12,7 +12,4 @@ interface ProjectionEngineLockRepository
     public function lockForHandlingMessages(): void;
 
     public function releaseLock(): void;
-
-
-
 }

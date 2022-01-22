@@ -18,9 +18,11 @@ class ProjectionEngineTest extends TestCase
     public function on_event_it_retrieves_all_events_since_last_offset_and_applies_them()
     {
         $messageRepository = new InMemoryReplayMessageRepository();
-        $messageRepository->persist(...array_map(
-                fn ($number) => new Message(new EventStub((string) $number)),
-                range(1, 10))
+        $messageRepository->persist(
+            ...array_map(
+            fn ($number) => new Message(new EventStub((string) $number)),
+            range(1, 10)
+        )
         );
 
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
@@ -48,9 +50,11 @@ class ProjectionEngineTest extends TestCase
     public function it_starts_from_the_previous_stored_offset()
     {
         $messageRepository = new InMemoryReplayMessageRepository();
-        $messageRepository->persist(...array_map(
-                fn ($number) => new Message(new EventStub((string) $number)),
-                range(1, 10))
+        $messageRepository->persist(
+            ...array_map(
+            fn ($number) => new Message(new EventStub((string) $number)),
+            range(1, 10)
+        )
         );
 
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
@@ -72,5 +76,4 @@ class ProjectionEngineTest extends TestCase
         $this->assertEquals('6', $eventConsumer->getHandledMessages()[0]->event()->value);
         $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
     }
-
 }

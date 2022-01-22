@@ -9,5 +9,4 @@ interface ProjectionEngineStateRepository
     public function storeOffset(string $offset): void;
 
     public function getOffset(): ?string;
-
 }

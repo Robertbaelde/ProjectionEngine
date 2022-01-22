@@ -6,7 +6,6 @@ use EventSauce\EventSourcing\Serialization\SerializablePayload;
 
 class EventStub implements SerializablePayload
 {
-
     public function __construct(public readonly string $value)
     {
     }
