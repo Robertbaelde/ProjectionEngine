@@ -11,6 +11,7 @@ use Robertbaelde\ProjectionEngine\Stubs\EventConsumerStub;
 use Robertbaelde\ProjectionEngine\Stubs\EventStub;
 use Robertbaelde\ProjectionEngine\Stubs\InMemoryProjectionEngineStateRepository;
 use Robertbaelde\ProjectionEngine\Stubs\InMemoryReplayMessageRepository;
+use Robertbaelde\ProjectionEngine\Stubs\MessageDispatcherThatResetsState;
 
 class ProjectionEngineTest extends TestCase
 {
@@ -75,5 +76,56 @@ class ProjectionEngineTest extends TestCase
         $this->assertCount(5, $eventConsumer->getHandledMessages());
         $this->assertEquals('6', $eventConsumer->getHandledMessages()[0]->event()->value);
         $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
+    }
+
+    /** @test */
+    public function it_resets_the_offset_on_replay()
+    {
+        $messageRepository = new InMemoryReplayMessageRepository();
+        $messageRepository->persist(
+            ...array_map(
+                fn ($number) => new Message(new EventStub((string) $number)),
+                range(1, 10)
+            )
+        );
+
+        $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
+        $projectionEngineInMemoryRepo->storeOffset(5);
+
+        $eventConsumer = new EventConsumerStub();
+
+        $projectionEngine = new ProjectionEngine(
+            $messageRepository,
+            $projectionEngineInMemoryRepo,
+            $projectionEngineInMemoryRepo,
+            new SynchronousMessageDispatcher($eventConsumer),
+            10
+        );
+
+        $projectionEngine->startReplay();
+
+        $this->assertCount(10, $eventConsumer->getHandledMessages());
+        $this->assertEquals('1', $eventConsumer->getHandledMessages()[0]->event()->value);
+        $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
+    }
+
+    /** @test */
+    public function when_the_consumer_implements_the_ResetsStateBeforeReplay_interface_it_gets_called_to_reset_state_on_replay()
+    {
+        $messageRepository = new InMemoryReplayMessageRepository();
+        $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
+        $dispatcher = new MessageDispatcherThatResetsState(new EventConsumerStub());
+
+        $projectionEngine = new ProjectionEngine(
+            $messageRepository,
+            $projectionEngineInMemoryRepo,
+            $projectionEngineInMemoryRepo,
+            $dispatcher,
+            10
+        );
+
+        $projectionEngine->startReplay();
+
+        $this->assertTrue($dispatcher->wasReset());
     }
 }
