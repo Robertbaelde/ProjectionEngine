@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Robertbaelde\ProjectionEngine\Stubs;
 
 use EventSauce\EventSourcing\Message;
@@ -8,12 +10,10 @@ use Robertbaelde\ProjectionEngine\ResetsStateBeforeReplay;
 
 class MessageDispatcherThatResetsState implements MessageDispatcher, ResetsStateBeforeReplay
 {
-
     private bool $reset = false;
 
     public function dispatch(Message ...$messages): void
     {
-
     }
 
     public function resetBeforeReplay(): void

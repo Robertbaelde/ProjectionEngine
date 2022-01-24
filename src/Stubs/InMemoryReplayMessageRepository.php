@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Robertbaelde\ProjectionEngine\Stubs;
 
 use EventSauce\EventSourcing\Message;
@@ -25,7 +27,7 @@ class InMemoryReplayMessageRepository implements ReplayMessageRepository
         $messageCount = 0;
 
         foreach (array_slice($this->messages, $offset, $pageSize) as $message) {
-            $messageCount++;
+            ++$messageCount;
             yield $message;
         }
 

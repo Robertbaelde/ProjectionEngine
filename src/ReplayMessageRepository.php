@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Robertbaelde\ProjectionEngine;
 
 use EventSauce\EventSourcing\Message;
@@ -10,7 +12,7 @@ interface ReplayMessageRepository
 {
     /**
      * @return generator<Message>
-     * Return of the generator is the offset to use for the next page
+     *                            Return of the generator is the offset to use for the next page
      *
      * @throws UnableToRetrieveMessages
      */

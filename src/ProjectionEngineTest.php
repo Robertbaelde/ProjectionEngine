@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Robertbaelde\ProjectionEngine;
 
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\SynchronousMessageDispatcher;
 use PHPUnit\Framework\TestCase;
-use Robertbaelde\ProjectionEngine\Events\LockObtained;
-use Robertbaelde\ProjectionEngine\Events\ProjectionEngineEvent;
 use Robertbaelde\ProjectionEngine\Stubs\EventConsumerStub;
 use Robertbaelde\ProjectionEngine\Stubs\EventStub;
 use Robertbaelde\ProjectionEngine\Stubs\InMemoryProjectionEngineStateRepository;
@@ -16,7 +16,7 @@ use Robertbaelde\ProjectionEngine\Stubs\MessageDispatcherThatResetsState;
 class ProjectionEngineTest extends TestCase
 {
     /** @test */
-    public function on_event_it_retrieves_all_events_since_last_offset_and_applies_them()
+    public function on_event_it_retrieves_all_events_since_last_offset_and_applies_them(): void
     {
         $messageRepository = new InMemoryReplayMessageRepository();
         $messageRepository->persist(
@@ -48,7 +48,7 @@ class ProjectionEngineTest extends TestCase
     }
 
     /** @test */
-    public function it_starts_from_the_previous_stored_offset()
+    public function it_starts_from_the_previous_stored_offset(): void
     {
         $messageRepository = new InMemoryReplayMessageRepository();
         $messageRepository->persist(
@@ -79,7 +79,7 @@ class ProjectionEngineTest extends TestCase
     }
 
     /** @test */
-    public function it_resets_the_offset_on_replay()
+    public function it_resets_the_offset_on_replay(): void
     {
         $messageRepository = new InMemoryReplayMessageRepository();
         $messageRepository->persist(
@@ -110,7 +110,7 @@ class ProjectionEngineTest extends TestCase
     }
 
     /** @test */
-    public function when_the_consumer_implements_the_ResetsStateBeforeReplay_interface_it_gets_called_to_reset_state_on_replay()
+    public function when_the_consumer_implements_the__resets_state_before_replay_interface_it_gets_called_to_reset_state_on_replay(): void
     {
         $messageRepository = new InMemoryReplayMessageRepository();
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');

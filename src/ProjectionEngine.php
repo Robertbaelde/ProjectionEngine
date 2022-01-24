@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Robertbaelde\ProjectionEngine;
 
 use EventSauce\EventSourcing\MessageDispatcher;
@@ -35,8 +37,7 @@ class ProjectionEngine
     {
         $this->lock->lockForHandlingMessages();
 
-        if($this->dispatcher instanceof ResetsStateBeforeReplay)
-        {
+        if ($this->dispatcher instanceof ResetsStateBeforeReplay) {
             $this->dispatcher->resetBeforeReplay();
         }
 
@@ -57,8 +58,8 @@ class ProjectionEngine
             $this->dispatcher->dispatch(...$messages);
 
             $offset = $messages->getReturn();
-            if (!is_int($offset)) {
-                throw new \LogicException("Generator must return offset as a int in the return");
+            if ( ! is_int($offset)) {
+                throw new \LogicException('Generator must return offset as a int in the return');
             }
             $this->state->storeOffset($offset);
         }
