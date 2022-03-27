@@ -6,8 +6,6 @@ namespace Robertbaelde\ProjectionEngine;
 
 interface ProjectionEngineLockRepository
 {
-    public function __construct(string $consumerId);
-
     /**
      * @throws ConsumerIsLockedByOtherProcess
      */
