@@ -8,7 +8,7 @@ use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDispatcher;
 
-class ProjectionEngine
+class ProjectionEngine implements ProjectionEngineInterface
 {
     public function __construct(
         protected ReplayMessageRepository $messages,
