@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine\Stubs;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
 
+use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDispatcher;
-use Robertbaelde\ProjectionEngine\ResetsStateBeforeReplay;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\ResetsStateBeforeReplay;
 
 class MessageDispatcherThatResetsState implements MessageDispatcher, ResetsStateBeforeReplay
 {
@@ -16,7 +17,7 @@ class MessageDispatcherThatResetsState implements MessageDispatcher, ResetsState
     {
     }
 
-    public function resetBeforeReplay(): void
+    public function resetBeforeReplay(AggregateRootId $aggregateRootId): void
     {
         $this->reset = true;
     }
