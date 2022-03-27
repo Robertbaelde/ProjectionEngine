@@ -8,7 +8,7 @@ interface ProjectionEngineStateRepository
 {
     public function __construct(string $consumerId);
 
-    public function storeOffset(int $offset): void;
+    public function storeOffset(string $aggregateId, int $offset): void;
 
-    public function getOffset(): ?int;
+    public function getProjectorOffsetForAggregate(string $aggregateId): int;
 }

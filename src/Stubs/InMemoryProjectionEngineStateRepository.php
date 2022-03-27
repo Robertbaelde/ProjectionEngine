@@ -10,8 +10,7 @@ use Robertbaelde\ProjectionEngine\ProjectionEngineStateRepository;
 
 class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRepository, ProjectionEngineLockRepository
 {
-    private string $consumerId;
-    private array $consumers = [];
+    private array $aggregates = [];
     private array $consumerLocks = [];
     private bool $lockWasObtained = false;
 
@@ -20,37 +19,36 @@ class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRe
         $this->consumerId = $consumerId;
     }
 
-    public function storeOffset(int $offset): void
+    public function storeOffset(string $aggregateId, int $offset): void
     {
-        $this->consumers[$this->consumerId] = $offset;
-        $this->consumerLocks[$this->consumerId] = false;
+        $this->aggregates[$aggregateId] = $offset;
     }
 
-    public function getOffset(): ?int
+    public function getProjectorOffsetForAggregate(string $aggregateId): int
     {
-        return $this->consumers[$this->consumerId] ?? null;
+        return $this->aggregates[$aggregateId] ?? 0;
     }
 
     /**
      * @throws ConsumerIsLockedByOtherProcess
      */
-    public function lockForHandlingMessages(): void
+    public function lockForHandlingMessages(string $aggregateRootId): void
     {
-        if ($this->isLocked()) {
+        if ($this->isLocked($aggregateRootId)) {
             throw new ConsumerIsLockedByOtherProcess();
         }
         $this->lockWasObtained = true;
-        $this->consumerLocks[$this->consumerId] = true;
+        $this->consumerLocks[$aggregateRootId] = true;
     }
 
-    public function releaseLock(): void
+    public function releaseLock(string $aggregateRootId): void
     {
-        $this->consumerLocks[$this->consumerId] = false;
+        $this->consumerLocks[$aggregateRootId] = false;
     }
 
-    public function isLocked(): bool
+    public function isLocked(string $aggregateRootId): bool
     {
-        return $this->consumerLocks[$this->consumerId] ?? false;
+        return $this->consumerLocks[$aggregateRootId] ?? false;
     }
 
     public function lockWasObtained(): bool

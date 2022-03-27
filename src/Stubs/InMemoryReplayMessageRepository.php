@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Robertbaelde\ProjectionEngine\Stubs;
 
+use EventSauce\EventSourcing\AggregateRootId;
+use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use Generator;
 use Robertbaelde\ProjectionEngine\ReplayMessageRepository;
@@ -37,5 +39,34 @@ class InMemoryReplayMessageRepository implements ReplayMessageRepository
     public function hasMessagesAfterOffset(int $offset): bool
     {
         return count(array_slice($this->messages, $offset, 1)) > 0;
+    }
+
+    public function retrieveAll(AggregateRootId $id): Generator
+    {
+        $lastMessage = null;
+
+        foreach ($this->messages as $message) {
+            if ($id->toString() === $message->aggregateRootId()?->toString()) {
+                yield $message;
+                $lastMessage = $message;
+            }
+        }
+
+        return $lastMessage instanceof Message ? $lastMessage->aggregateVersion() : 0;
+    }
+
+    public function retrieveAllAfterVersion(AggregateRootId $id, int $aggregateRootVersion): Generator
+    {
+        $lastMessage = null;
+
+        foreach ($this->messages as $message) {
+            if ($id->toString() === $message->aggregateRootId()?->toString()
+                && $message->header(Header::AGGREGATE_ROOT_VERSION) > $aggregateRootVersion) {
+                yield $message;
+                $lastMessage = $message;
+            }
+        }
+
+        return $lastMessage instanceof Message ? $lastMessage->aggregateVersion() : 0;
     }
 }

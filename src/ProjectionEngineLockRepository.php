@@ -11,7 +11,7 @@ interface ProjectionEngineLockRepository
     /**
      * @throws ConsumerIsLockedByOtherProcess
      */
-    public function lockForHandlingMessages(): void;
+    public function lockForHandlingMessages(string $aggregateRootId): void;
 
-    public function releaseLock(): void;
+    public function releaseLock(string $aggregateRootId): void;
 }

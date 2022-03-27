@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Robertbaelde\ProjectionEngine;
 
+use EventSauce\EventSourcing\AggregateRootId;
+use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDispatcher;
 
 class ProjectionEngine
@@ -12,56 +14,55 @@ class ProjectionEngine
         protected ReplayMessageRepository $messages,
         protected ProjectionEngineStateRepository $state,
         protected ProjectionEngineLockRepository $lock,
-        protected MessageDispatcher $dispatcher,
-        protected int $pageSize = 100
+        protected MessageDispatcher $dispatcher
     ) {
     }
 
     /**
      * @throws ConsumerIsLockedByOtherProcess
      */
-    public function processNewEvents(): void
+    public function processMessageForAggregate(AggregateRootId $aggregateRootId): void
     {
         // claim lock
-        $this->lock->lockForHandlingMessages();
+        $this->lock->lockForHandlingMessages($aggregateRootId->toString());
 
-        $this->processMessages();
+        $currentProjectionVersion = $this->state->getProjectorOffsetForAggregate($aggregateRootId->toString());
+        $messages = $this->messages->retrieveAllAfterVersion($aggregateRootId, $currentProjectionVersion);
+        $messages = iterator_to_array($messages);
 
-        $this->lock->releaseLock();
+        if(count($messages) !== 0){
+            $this->passMessageToConsumer(...$messages);
+            $this->state->storeOffset($aggregateRootId->toString(), end($messages)->aggregateVersion());
+        }
+
+        $this->lock->releaseLock($aggregateRootId->toString());
     }
 
     /**
      * @throws ConsumerIsLockedByOtherProcess
      */
-    public function startReplay(): void
+    public function startReplayForAggregate(AggregateRootId $aggregateRootId): void
     {
-        $this->lock->lockForHandlingMessages();
+        $this->lock->lockForHandlingMessages($aggregateRootId->toString());
 
         if ($this->dispatcher instanceof ResetsStateBeforeReplay) {
-            $this->dispatcher->resetBeforeReplay();
+            $this->dispatcher->resetBeforeReplay($aggregateRootId);
         }
 
-        $this->state->storeOffset(0);
+        $this->state->storeOffset($aggregateRootId->toString(), 0);
+        $this->lock->releaseLock($aggregateRootId->toString());
 
-        $this->processMessages();
-
-        $this->lock->releaseLock();
+        $this->processMessageForAggregate($aggregateRootId);
     }
 
-    private function processMessages(): void
+
+    private function passMessageToConsumer(Message ...$messages) : void
     {
-        $offset = $this->state->getOffset() ?? 0;
+        $this->dispatcher->dispatch(...$messages);
+    }
 
-        while ($this->messages->hasMessagesAfterOffset($offset)) {
-            $messages = $this->messages->retrieveForReplayFromOffset($offset, $this->pageSize);
-
-            $this->dispatcher->dispatch(...$messages);
-
-            $offset = $messages->getReturn();
-            if ( ! is_int($offset)) {
-                throw new \LogicException('Generator must return offset as a int in the return');
-            }
-            $this->state->storeOffset($offset);
-        }
+    private function makeSureMessagesAreInOrder()
+    {
+        // todo
     }
 }

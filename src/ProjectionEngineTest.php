@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Robertbaelde\ProjectionEngine;
 
+use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\SynchronousMessageDispatcher;
 use PHPUnit\Framework\TestCase;
+use Robertbaelde\ProjectionEngine\Stubs\AggregateRootIdStub;
 use Robertbaelde\ProjectionEngine\Stubs\EventConsumerStub;
 use Robertbaelde\ProjectionEngine\Stubs\EventStub;
 use Robertbaelde\ProjectionEngine\Stubs\InMemoryProjectionEngineStateRepository;
@@ -15,103 +17,100 @@ use Robertbaelde\ProjectionEngine\Stubs\MessageDispatcherThatResetsState;
 
 class ProjectionEngineTest extends TestCase
 {
-    /** @test */
-    public function on_event_it_retrieves_all_events_since_last_offset_and_applies_them(): void
+    private InMemoryReplayMessageRepository $messageRepository;
+
+    public function setUp(): void
     {
-        $messageRepository = new InMemoryReplayMessageRepository();
-        $messageRepository->persist(
-            ...array_map(
-            fn ($number) => new Message(new EventStub((string) $number)),
-            range(1, 10)
-        )
-        );
+        parent::setUp();
+        $this->messageRepository = new InMemoryReplayMessageRepository();
+    }
+
+    /** @test */
+    public function on_event_it_retrieves_all_events_for_aggregate_since_last_offset_and_applies_them(): void
+    {
+        $aggregateRootId = AggregateRootIdStub::fromString('aggregate_1');
+        $this->generateStubEvents($aggregateRootId, 10);
+
+        $otherAggregateId = AggregateRootIdStub::fromString('aggregate_2');
+        $this->generateStubEvents($otherAggregateId, 10);
 
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
 
         $eventConsumer = new EventConsumerStub();
 
         $projectionEngine = new ProjectionEngine(
-            $messageRepository,
+            $this->messageRepository,
             $projectionEngineInMemoryRepo,
             $projectionEngineInMemoryRepo,
-            new SynchronousMessageDispatcher($eventConsumer),
-            2
-        );
+            new SynchronousMessageDispatcher($eventConsumer));
 
-        $projectionEngine->processNewEvents();
+        $message = $this->makeStubMessage($aggregateRootId, 11);
+        $this->messageRepository->persist($message);
 
-        $this->assertCount(10, $eventConsumer->getHandledMessages());
+        $projectionEngine->processMessageForAggregate($aggregateRootId);
+
+        $this->assertCount(11, $eventConsumer->getHandledMessages());
         $this->assertTrue($projectionEngineInMemoryRepo->lockWasObtained());
-        $this->assertFalse($projectionEngineInMemoryRepo->isLocked());
+        $this->assertFalse($projectionEngineInMemoryRepo->isLocked($aggregateRootId->toString()));
 
-        $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
+        $this->assertEquals(11, $projectionEngineInMemoryRepo->getProjectorOffsetForAggregate($aggregateRootId->toString()));
     }
 
     /** @test */
     public function it_starts_from_the_previous_stored_offset(): void
     {
-        $messageRepository = new InMemoryReplayMessageRepository();
-        $messageRepository->persist(
-            ...array_map(
-            fn ($number) => new Message(new EventStub((string) $number)),
-            range(1, 10)
-        )
-        );
+        $aggregateRootId = AggregateRootIdStub::fromString('aggregate_1');
+        $this->generateStubEvents($aggregateRootId, 10);
 
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
-        $projectionEngineInMemoryRepo->storeOffset(5);
+        $projectionEngineInMemoryRepo->storeOffset($aggregateRootId->toString(), 5);
 
         $eventConsumer = new EventConsumerStub();
 
         $projectionEngine = new ProjectionEngine(
-            $messageRepository,
+            $this->messageRepository,
             $projectionEngineInMemoryRepo,
             $projectionEngineInMemoryRepo,
-            new SynchronousMessageDispatcher($eventConsumer),
-            10
+            new SynchronousMessageDispatcher($eventConsumer)
         );
 
-        $projectionEngine->processNewEvents();
+        $projectionEngine->processMessageForAggregate($aggregateRootId);
 
         $this->assertCount(5, $eventConsumer->getHandledMessages());
         $this->assertEquals('6', $eventConsumer->getHandledMessages()[0]->event()->value);
-        $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
+        $this->assertEquals(10, $projectionEngineInMemoryRepo->getProjectorOffsetForAggregate($aggregateRootId->toString()));
     }
 
     /** @test */
     public function it_resets_the_offset_on_replay(): void
     {
-        $messageRepository = new InMemoryReplayMessageRepository();
-        $messageRepository->persist(
-            ...array_map(
-                fn ($number) => new Message(new EventStub((string) $number)),
-                range(1, 10)
-            )
-        );
+        $aggregateRootId = AggregateRootIdStub::fromString('aggregate_1');
+        $this->generateStubEvents($aggregateRootId, 10);
 
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
-        $projectionEngineInMemoryRepo->storeOffset(5);
+        $projectionEngineInMemoryRepo->storeOffset($aggregateRootId->toString(), 5);
 
         $eventConsumer = new EventConsumerStub();
 
         $projectionEngine = new ProjectionEngine(
-            $messageRepository,
+            $this->messageRepository,
             $projectionEngineInMemoryRepo,
             $projectionEngineInMemoryRepo,
             new SynchronousMessageDispatcher($eventConsumer),
             10
         );
 
-        $projectionEngine->startReplay();
+        $projectionEngine->startReplayForAggregate($aggregateRootId);
 
         $this->assertCount(10, $eventConsumer->getHandledMessages());
         $this->assertEquals('1', $eventConsumer->getHandledMessages()[0]->event()->value);
-        $this->assertEquals(10, $projectionEngineInMemoryRepo->getOffset());
+        $this->assertEquals(10, $projectionEngineInMemoryRepo->getProjectorOffsetForAggregate($aggregateRootId->toString()));
     }
 
     /** @test */
-    public function when_the_consumer_implements_the__resets_state_before_replay_interface_it_gets_called_to_reset_state_on_replay(): void
+    public function when_the_consumer_implements_the_resets_state_before_replay_interface_it_gets_called_to_reset_state_on_replay(): void
     {
+        $aggregateRootId = AggregateRootIdStub::fromString('aggregate_1');
         $messageRepository = new InMemoryReplayMessageRepository();
         $projectionEngineInMemoryRepo = new InMemoryProjectionEngineStateRepository('test-consumer');
         $dispatcher = new MessageDispatcherThatResetsState(new EventConsumerStub());
@@ -120,12 +119,29 @@ class ProjectionEngineTest extends TestCase
             $messageRepository,
             $projectionEngineInMemoryRepo,
             $projectionEngineInMemoryRepo,
-            $dispatcher,
-            10
+            $dispatcher
         );
 
-        $projectionEngine->startReplay();
-
+        $projectionEngine->startReplayForAggregate($aggregateRootId);
         $this->assertTrue($dispatcher->wasReset());
+    }
+
+    private function generateStubEvents(\EventSauce\EventSourcing\AggregateRootId $aggregateRootId, int $numberOfMessages = 1)
+    {
+        $this->messageRepository->persist(
+            ...array_map(
+                fn($number) => $this->makeStubMessage($aggregateRootId, $number),
+                range(1, $numberOfMessages)
+            )
+        );
+    }
+
+    private function makeStubMessage(\EventSauce\EventSourcing\AggregateRootId $aggregateRootId, int $version): Message
+    {
+        $message = new Message(new EventStub((string) $version));
+        return $message->withHeaders([
+            Header::AGGREGATE_ROOT_ID => $aggregateRootId,
+            Header::AGGREGATE_ROOT_VERSION => $version
+        ]);
     }
 }
