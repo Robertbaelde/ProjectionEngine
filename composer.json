@@ -4,8 +4,7 @@
     "type": "library",
     "require": {
         "php": "^8.1",
-        "eventsauce/eventsauce": "^1.3",
-        "eventsauce/backoff": "^1.1"
+        "eventsauce/eventsauce": "^1.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4",

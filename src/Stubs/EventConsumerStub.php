@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
+namespace Robertbaelde\ProjectionEngine\Stubs;
 
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageConsumer;
