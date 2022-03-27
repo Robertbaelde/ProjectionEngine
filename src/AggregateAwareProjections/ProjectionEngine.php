@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections;
 
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;

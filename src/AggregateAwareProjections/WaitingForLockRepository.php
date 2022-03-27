@@ -1,6 +1,6 @@
 <?php
 
-namespace Robertbaelde\ProjectionEngine;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections;
 
 use EventSauce\BackOff\BackOffStrategy;
 use EventSauce\BackOff\ExponentialBackOffStrategy;

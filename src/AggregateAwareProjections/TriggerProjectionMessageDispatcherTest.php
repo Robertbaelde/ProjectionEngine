@@ -1,13 +1,13 @@
 <?php
 
-namespace Robertbaelde\ProjectionEngine;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections;
 
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use PHPUnit\Framework\TestCase;
-use Robertbaelde\ProjectionEngine\Stubs\AggregateRootIdStub;
-use Robertbaelde\ProjectionEngine\Stubs\EventStub;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\AggregateRootIdStub;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\EventStub;
 
 class TriggerProjectionMessageDispatcherTest extends TestCase
 {

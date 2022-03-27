@@ -1,6 +1,6 @@
 <?php
 
-namespace Robertbaelde\ProjectionEngine;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections;
 
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Message;

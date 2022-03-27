@@ -1,6 +1,6 @@
 <?php
 
-namespace Robertbaelde\ProjectionEngine\Stubs;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
 
 use EventSauce\EventSourcing\AggregateRootId;
 

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine\Stubs;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
 
-use Robertbaelde\ProjectionEngine\ConsumerIsLockedByOtherProcess;
-use Robertbaelde\ProjectionEngine\ProjectionEngineLockRepository;
-use Robertbaelde\ProjectionEngine\ProjectionEngineStateRepository;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\ConsumerIsLockedByOtherProcess;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\ProjectionEngineLockRepository;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\ProjectionEngineStateRepository;
 
 class InMemoryProjectionEngineStateRepository implements ProjectionEngineStateRepository, ProjectionEngineLockRepository
 {

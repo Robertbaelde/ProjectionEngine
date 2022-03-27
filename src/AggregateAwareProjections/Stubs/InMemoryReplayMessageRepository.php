@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine\Stubs;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
 
 use EventSauce\EventSourcing\AggregateRootId;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use Generator;
-use Robertbaelde\ProjectionEngine\ReplayMessageRepository;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\ReplayMessageRepository;
 
 class InMemoryReplayMessageRepository implements ReplayMessageRepository
 {

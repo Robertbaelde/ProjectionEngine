@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine\Stubs;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs;
 
 use EventSauce\EventSourcing\Serialization\SerializablePayload;
 

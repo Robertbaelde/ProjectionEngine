@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Robertbaelde\ProjectionEngine;
+namespace Robertbaelde\ProjectionEngine\AggregateAwareProjections;
 
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\SynchronousMessageDispatcher;
 use PHPUnit\Framework\TestCase;
-use Robertbaelde\ProjectionEngine\Stubs\AggregateRootIdStub;
-use Robertbaelde\ProjectionEngine\Stubs\EventConsumerStub;
-use Robertbaelde\ProjectionEngine\Stubs\EventStub;
-use Robertbaelde\ProjectionEngine\Stubs\InMemoryProjectionEngineStateRepository;
-use Robertbaelde\ProjectionEngine\Stubs\InMemoryReplayMessageRepository;
-use Robertbaelde\ProjectionEngine\Stubs\MessageDispatcherThatResetsState;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\AggregateRootIdStub;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\EventConsumerStub;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\EventStub;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\InMemoryProjectionEngineStateRepository;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\InMemoryReplayMessageRepository;
+use Robertbaelde\ProjectionEngine\AggregateAwareProjections\Stubs\MessageDispatcherThatResetsState;
 
 class ProjectionEngineTest extends TestCase
 {
